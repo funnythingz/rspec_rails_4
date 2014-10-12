@@ -1,5 +1,5 @@
 class ContactsController < ApplicationController
-  before_action :authenticate, except: [:index, :show]
+  # before_action :authenticate, except: [:index, :show]
   before_action :set_contact, only: [:show, :edit, :update, :destroy]
 
   # GET /contacts
@@ -9,6 +9,14 @@ class ContactsController < ApplicationController
       @contacts = Contact.by_letter(params[:letter])
     else
       @contacts = Contact.order("lastname, firstname")
+    end
+
+    respond_to do |format|
+      format.html
+      format.csv do
+        send_data @contacts.to_csv, type: 'text/csv; charset=iso-8859-1, header=present', disposition: 'attachment; filename=contacts.csv'
+      end
+      format.json
     end
   end
 

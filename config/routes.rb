@@ -8,5 +8,12 @@ ContactsExample40::Application.routes.draw do
 
   resources :contacts
 
+=begin
+  # TODO: with phones
+  resources :contacts do
+    resources :phones
+  end
+=end
+
   root to: 'contacts#index'
 end
