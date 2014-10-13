@@ -12,6 +12,10 @@ ContactsExample40::Application.routes.draw do
   # TODO: with phones
   resources :contacts do
     resources :phones
+
+    member do
+      patch 'hide_contact'
+    end
   end
 =end
 
