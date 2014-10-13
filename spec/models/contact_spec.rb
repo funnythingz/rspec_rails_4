@@ -31,10 +31,11 @@ describe Contact do
   end
 
   # 連絡先のフルネームを文字列として返すこと
-  it "returns a contact's full name as a string" do
+  subject {
     contact = build(:contact, firstname: 'John', lastname: 'Doe')
-    expect(contact.name).to eq 'John Doe'
-  end
+    contact.name
+  }
+  it { should eq 'John Doe' }
 
   # 文字で姓をフィルタする
   describe 'filter last name by letter' do

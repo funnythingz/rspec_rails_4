@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe ContactsController do
 
+  let(:contact) do
+    create(:contact, lastname: 'Smith')
+  end
+
   shared_examples('public access to contacts') do
     describe 'GET #index' do
       # params[:letter] がある場合
@@ -50,19 +54,24 @@ describe ContactsController do
     end
 
     describe 'GET #show' do
+      let(:contact) { build_stubbed(:contact) }
+
       before :each do
-        @contact = create(:contact)
+        allow(contact).to receive(:persisted?).and_return(true)
+        allow(Contact).to receive(:order).with('lastname, firstname').and_return([contact])
+        allow(Contact).to receive(:find).with(contact.id.to_s).and_return(contact)
+        allow(contact).to receive(:save).and_return(true)
+
+        get :show, id: contact
       end
 
-      # @contact に要求された連絡先を割り当てること
-      it 'assigns the requested contact to @contact' do
-        get :show, id: @contact
-        expect(assigns(:contact)).to eq @contact
+      # contact に要求された連絡先を割り当てること
+      it 'assigns the requested contact to contact' do
+        expect(assigns(:contact)).to eq contact
       end
 
       # :show テンプレートを表示すること
       it 'renders the :show template' do
-        get :show, id: @contact
         expect(response).to render_template :show
       end
     end
@@ -74,8 +83,9 @@ describe ContactsController do
       before :each do
         get :new
       end
-      # @contact に新しい連絡先を割り当てること
-      it 'assigns a new Contact to @contact' do
+
+      # contact に新しい連絡先を割り当てること
+      it 'assigns a new Contact to contact' do
         expect(assigns(:contact)).to be_a_new(Contact)
       end
 
@@ -86,20 +96,15 @@ describe ContactsController do
     end
 
     describe 'GET #edit' do
-
-      before :each do
-        @contact = create(:contact)
-      end
-
-      # @contact に要求された連絡先を割り当てること
-      it 'assigns the requested contact to @contact' do
-        get :edit, id: @contact
-        expect(assigns(:contact)).to eq @contact
+      # contact に要求された連絡先を割り当てること
+      it 'assigns the requested contact to contact' do
+        get :edit, id: contact
+        expect(assigns(:contact)).to eq contact
       end
 
       # :edit テンプレートを表示すること
       it 'renders the :edit template' do
-        get :edit, id: @contact
+        get :edit, id: contact
         expect(response).to render_template :edit
       end
     end
@@ -148,7 +153,6 @@ describe ContactsController do
     end
 
     describe 'PATCH #update' do
-
       before :each do
         @contact = create(:contact, firstname: 'Large', lastname: 'Unko')
       end
@@ -194,21 +198,17 @@ describe ContactsController do
     end
 
     describe 'DELETE #destroy' do
-
-      before :each do
-        @contact = create(:contact)
-      end
-
       # データベースから連絡先を削除すること
       it 'deletes the contact from the database' do
+        contact
         expect{
-          delete :destroy, id: @contact
+          delete :destroy, id: contact
         }.to change(Contact, :count).by(-1)
       end
 
       # contacts#index にリダイレクトすること
       it 'redirects to contacts#index' do
-        delete :destroy, id: @contact
+        delete :destroy, id: contact
         expect(response).to redirect_to contacts_url
       end
     end
@@ -279,19 +279,15 @@ describe ContactsController do
 =begin
   # TODO: CRUD以外のメソッドのテスト
   describe 'PATCH hide_contact' do
-    before :each do
-      @contact = create(:contact)
-    end
-
     # 連絡先を hidden 状態にすること
     it 'marks the contact as hidden' do
-      patch :hide_contact, id: @contact
-      expect(@contact.reload.hidden?).to be_true
+      patch :hide_contact, id: contact
+      expect(contact.reload.hidden?).to be_true
     end
 
     # contact#index にリダイレクトすること
     it 'redirects to contacts#index' do
-      patch :hide_contact, id: @contact
+      patch :hide_contact, id: contact
       expect(response).to redirect_to contacts_url
     end
   end
