@@ -32,10 +32,9 @@ describe Contact do
 
   # 連絡先のフルネームを文字列として返すこと
   subject {
-    contact = build(:contact, firstname: 'John', lastname: 'Doe')
-    contact.name
+    build(:contact, firstname: 'John', lastname: 'Doe')
   }
-  it { should eq 'John Doe' }
+  it { should be_named 'John Doe' }
 
   # 文字で姓をフィルタする
   describe 'filter last name by letter' do
